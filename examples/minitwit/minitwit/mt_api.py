@@ -31,6 +31,13 @@ def public_timeline():
     timeline = query_db('''SELECT * FROM message''')
     return jsonify(timeline)
 
+@app.route('/api/v1/resources/users/<username>/following')
+def users_following(username):
+    query = '''Select * FROM follower, user WHERE user_id
+    = who_id AND username ='''
+    query = query + "\"" + username + "\""
+    result = query_db(query)
+    return jsonify(result)
 
 #  Errors
 @app.errorhandler(404)
