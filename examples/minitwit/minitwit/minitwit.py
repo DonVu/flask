@@ -30,6 +30,11 @@ app.config.from_object(__name__)
 app.config.from_envvar('MINITWIT_SETTINGS', silent=True)
 
 
+#  added function
+def make_dicts(cursor, row):
+    return dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
+
 def get_db():
     """Opens a new database connection if there is none yet for the
     current application context.
@@ -37,7 +42,7 @@ def get_db():
     top = _app_ctx_stack.top
     if not hasattr(top, 'sqlite_db'):
         top.sqlite_db = sqlite3.connect(app.config['DATABASE'])
-        top.sqlite_db.row_factory = sqlite3.Row
+        top.sqlite_db.row_factory = make_dicts
     return top.sqlite_db
 
 
