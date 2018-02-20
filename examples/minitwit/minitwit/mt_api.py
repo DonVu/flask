@@ -20,11 +20,16 @@ def populatedb_command():
     populate_db()
     print('Populated the database.')
 
-#  Users
+#  Read URLs
 @app.route('/api/v1/resources/users')
-def get_allUsers():
+def get_allusers():
     users = query_db('''SELECT * FROM user''')
     return jsonify(users)
+
+@app.route('/api/v1/resources/users/timeline')
+def public_timeline():
+    timeline = query_db('''SELECT * FROM message''')
+    return jsonify(timeline)
 
 
 #  Errors
