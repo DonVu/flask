@@ -41,13 +41,6 @@ def users_following(username):
     result = query_db(query)
     return jsonify(result)
 
-@app.route('/api/v1/resources/user/register?username=<username>&email=<email>&pw_hash=<pw_hash>', methods=['PUT'])
-def register_user(username, email, pw_hash):
-    print (username)
-    print (email)
-    print (pw_hash)
-    return jsonify('register successful')
-
 @app.route('/api/v1.0/register', methods=['POST'])
 def register():
   
@@ -66,10 +59,27 @@ def register():
              username, email, pw_hash) values (?, ?, ?)''',(entry['username'], entry['email'],entry['pw_hash']))
     db.commit()
 
-  # return jsonify({'mt':entry}), 201
     return jsonify("its success"), 201
+    #return jsonify({'mt':entry}), 201
 
-#  Errors
+@app.route('/api/v1.0/add_message', methods=['POST'])
+def add_message():
+     """Registers a new message for the user."""
+     if not request.json or not 'author_id' in request.json or not 'text' in request.json:
+         abort(401)
+
+     db = get_db()
+
+     author_id = request.json.get('author_id')
+     text = request.json.get('text')
+     pub_date =int(time.time())
+     db.execute('''insert into message (author_id, text, pub_date) values (?, ?, ?)''',
+                (author_id, text, pub_date))
+     db.commit()
+     return jsonify("message stored: sucess"), 201 
+
+
+ #  Errors
 @app.errorhandler(404)
 def page_not_found(e):
     return jsonify("404 Error Not Found"), 404
