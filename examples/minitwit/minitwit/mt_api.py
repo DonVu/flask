@@ -41,7 +41,8 @@ def users_following(username):
     result = query_db(query)
     return jsonify(result)
 
-@app.route('/api/v1.0/register', methods=['POST'])
+# Create URLs
+@app.route('/api/v1.0/resources/users/register', methods=['POST'])
 def register():
   
     if not request.json or not 'username' in request.json or not 'email' in request.json or not 'pw_hash' in request.json:
@@ -62,7 +63,7 @@ def register():
     return jsonify("its success"), 201
     #return jsonify({'mt':entry}), 201
 
-@app.route('/api/v1.0/add_message', methods=['POST'])
+@app.route('/api/v1.0/resources/messages/add', methods=['POST'])
 def add_message():
      """Registers a new message for the user."""
      if not request.json or not 'author_id' in request.json or not 'text' in request.json:
@@ -77,6 +78,23 @@ def add_message():
                 (author_id, text, pub_date))
      db.commit()
      return jsonify("message stored: sucess"), 201 
+
+# Delete URLs
+
+
+@app.route('/api/v1.0/resources/users/delete', methods=['POST'])
+def delete_user():
+  
+    if not request.json or not 'username' in request.json:
+        abort(400)
+
+    db = get_db()
+    usernameVariable = request.json.get('username')
+
+    db.execute('''DELETE FROM user WHERE username = "{}"'''.format(usernameVariable))
+    db.commit()
+
+    return jsonify("Delete is successful"), 201
 
 
  #  Errors
