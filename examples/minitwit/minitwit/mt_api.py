@@ -35,11 +35,25 @@ def public_timeline():
 
 @app.route('/api/v1/resources/users/<username>/following', methods=['GET'])
 def users_following(username):
-    query = '''Select * FROM follower, user WHERE username = "{}"'''.format(username)
-    print (query)
-    # query = query + "\"" + username + "\""
+    query = '''SELECT user_id FROM user WHERE username = "{}"'''.format(username)
     result = query_db(query)
-    return jsonify(result)
+    userID_dict = result[0]
+    uID = userID_dict['user_id']
+
+    query2 = '''SELECT whom_id FROM follower WHERE who_id = {}'''.format(uID)
+    result2 = query_db(query2)
+    
+    print(result2)
+
+    followers = []
+    for following_dict in result2:
+        whom_id = following_dict['whom_id']
+        query3 = '''SELECT username FROM user WHERE user_id = {}'''.format(whom_id)
+        result3 = query_db(query3)
+        followers.append(result3)
+   
+    print(followers) 
+    return jsonify(followers)
 
 @app.route('/api/v1/resources/users/<username>/timeline', methods=['GET'])
 def user_timeline(username):
@@ -57,7 +71,7 @@ def user_timeline(username):
         query3 = '''SELECT text FROM message WHERE author_id = {}'''.format(whom_id)
         result3 = query_db(query3)
         messages.append(result3)
-        print(result3)
+
     print (messages)
     return jsonify("timeline action succeeded")
 
