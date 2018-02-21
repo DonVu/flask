@@ -23,23 +23,43 @@ def populatedb_command():
     print('Populated the database.')
 
 #  Read URLs
-@app.route('/api/v1/resources/users')
+@app.route('/api/v1/resources/users', methods=['GET'])
 def get_allusers():
     users = query_db('''SELECT * FROM user''')
     return jsonify(users)
 
-@app.route('/api/v1/resources/users/timeline')
+@app.route('/api/v1/resources/users/timeline', methods=['GET'])
 def public_timeline():
     timeline = query_db('''SELECT * FROM message''')
     return jsonify(timeline)
 
-@app.route('/api/v1/resources/users/<username>/following')
+@app.route('/api/v1/resources/users/<username>/following', methods=['GET'])
 def users_following(username):
     query = '''Select * FROM follower, user WHERE username = "{}"'''.format(username)
     print (query)
     # query = query + "\"" + username + "\""
     result = query_db(query)
     return jsonify(result)
+
+@app.route('/api/v1/resources/users/<username>/timeline', methods=['GET'])
+def user_timeline(username):
+    query = '''SELECT user_id FROM user WHERE username = "{}"'''.format(username)
+    result = query_db(query)
+    userID_dict = result[0]
+    uID = userID_dict['user_id']
+
+    query2 = '''SELECT whom_id FROM follower WHERE who_id = {}'''.format(uID)
+    result2 = query_db(query2)
+
+    messages = []
+    for following_dict in result2:
+        whom_id = following_dict['whom_id']
+        query3 = '''SELECT text FROM message WHERE author_id = {}'''.format(whom_id)
+        result3 = query_db(query3)
+        messages.append(result3)
+        print(result3)
+    print (messages)
+    return jsonify("timeline action succeeded")
 
 # Create URLs
 @app.route('/api/v1.0/resources/users/register', methods=['POST'])
