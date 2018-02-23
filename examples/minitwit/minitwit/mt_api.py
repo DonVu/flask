@@ -16,24 +16,35 @@ def populate_db():
         db.cursor().executescript(f.read())
     db.commit()
 
+def delete_from_db(database_column, database_table):
+    if not request.json or not database_column in request.json:
+        abort(400)
+
+    db = get_db()
+    delete_request = request.json.get(database_column)
+
+    db.execute('DELETE FROM %s WHERE %s = "%s"' % (database_table, database_column, delete_request))
+    db.commit()
+
 @app.cli.command('populatedb')
 def populatedb_command():
     #Populates the database
     populate_db()
     print('Populated the database.')
 
+
 #  Read URLs
-@app.route('/api/v1/resources/users', methods=['GET'])
+@app.route('/api/v1.0/resources/users', methods=['GET'])
 def get_allusers():
     users = query_db('''SELECT * FROM user''')
     return jsonify(users)
 
-@app.route('/api/v1/resources/users/timeline', methods=['GET'])
+@app.route('/api/v1.0/resources/users/timeline', methods=['GET'])
 def public_timeline():
     timeline = query_db('''SELECT * FROM message''')
     return jsonify(timeline)
 
-@app.route('/api/v1/resources/users/<username>/following', methods=['GET'])
+@app.route('/api/v1.0/resources/users/<username>/following', methods=['GET'])
 def users_following(username):
     query = '''SELECT user_id FROM user WHERE username = "{}"'''.format(username)
     result = query_db(query)
@@ -55,7 +66,7 @@ def users_following(username):
     print(followers) 
     return jsonify(followers)
 
-@app.route('/api/v1/resources/users/<username>/timeline', methods=['GET'])
+@app.route('/api/v1.0/resources/users/<username>/timeline', methods=['GET'])
 def user_timeline(username):
     query = '''SELECT user_id FROM user WHERE username = "{}"'''.format(username)
     result = query_db(query)
@@ -74,6 +85,7 @@ def user_timeline(username):
 
     print (messages)
     return jsonify("timeline action succeeded")
+
 
 # Create URLs
 @app.route('/api/v1.0/resources/users/register', methods=['POST'])
@@ -111,24 +123,26 @@ def add_message():
      db.execute('''insert into message (author_id, text, pub_date) values (?, ?, ?)''',
                 (author_id, text, pub_date))
      db.commit()
-     return jsonify("message stored: sucess"), 201 
+     return jsonify("message stored: sucessessful"), 201 
+
 
 # Delete URLs
-
-
-@app.route('/api/v1.0/resources/users/delete', methods=['POST'])
+@app.route('/api/v1.0/resources/users/delete', methods=['DELETE'])
 def delete_user():
-  
-    if not request.json or not 'username' in request.json:
-        abort(400)
+    db_column = 'username'
+    db_table = 'user'
+    delete_from_db(db_column, db_table)
+    
+    return jsonify("Delete user is successful"), 201
 
-    db = get_db()
-    usernameVariable = request.json.get('username')
 
-    db.execute('''DELETE FROM user WHERE username = "{}"'''.format(usernameVariable))
-    db.commit()
+@app.route('/api/v1.0/resources/messages/delete', methods=['DELETE'])
+def delete_message():
+    db_column = 'message_id'
+    db_table = 'message'
+    delete_from_db(db_column, db_table) 
 
-    return jsonify("Delete is successful"), 201
+    return jsonify("Delete message is successful"), 201
 
 
  #  Errors
