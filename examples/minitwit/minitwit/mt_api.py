@@ -4,10 +4,14 @@ import click
 from flask import Flask, jsonify, request, abort
 from sqlite3 import dbapi2 as sqlite3
 from minitwit import *
+from flask_basicauth import BasicAuth
 
 app = Flask(__name__)
 
+app.config['BASIC_AUTH_USERNAME'] = 'admin'
+app.config['BASIC_AUTH_PASSWORD'] = 'password'
 
+basic_auth = BasicAuth(app)
 
 def populate_db():
     # Populates the database
@@ -35,6 +39,7 @@ def populatedb_command():
 
 #  Read URLs
 @app.route('/api/v1.0/resources/users', methods=['GET'])
+@basic_auth.required
 def get_allusers():
     users = query_db('''SELECT * FROM user''')
     return jsonify(users)
