@@ -148,15 +148,15 @@ def delete_message():
  #  Errors
 
 @app.errorhandler(400)
-def page_not_found(e):
+def bad_request(e):
     return jsonify("400 Bad Request"), 400
 
 @app.errorhandler(401)
-def page_not_found(e):
+def unauthorized(e):
     return jsonify("401 Unauthorized"), 401
 
 @app.errorhandler(403)
-def page_not_found(e):
+def forbidden(e):
     return jsonify("403 Forbidden"), 403
 
 @app.errorhandler(404)
@@ -164,7 +164,7 @@ def page_not_found(e):
     return jsonify("404 Error Not Found"), 404
 
 @app.errorhandler(500)
-def page_not_found(e):
+def internal_server_error(e):
     return jsonify("500 Internal Server Error"), 500
 
 if __name__=='__main__':
