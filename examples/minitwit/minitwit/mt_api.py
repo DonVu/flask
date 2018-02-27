@@ -93,7 +93,7 @@ def user_timeline(username):
 
 
 # Create URLs
-@app.route('/api/v1.0/resources/users/register', methods=['POST'])
+@app.route('/api/v1.0/resources/users/', methods=['POST'])
 def register():
   
     if not request.json or not 'username' in request.json or not 'email' in request.json or not 'pw_hash' in request.json:
@@ -114,7 +114,7 @@ def register():
     return jsonify("its success"), 201
     #return jsonify({'mt':entry}), 201
 
-@app.route('/api/v1.0/resources/messages/add', methods=['POST'])
+@app.route('/api/v1.0/resources/messages/', methods=['POST'])
 def add_message():
      """Registers a new message for the user."""
      if not request.json or not 'author_id' in request.json or not 'text' in request.json:
@@ -132,7 +132,7 @@ def add_message():
 
 
 # Delete URLs
-@app.route('/api/v1.0/resources/users/delete', methods=['DELETE'])
+@app.route('/api/v1.0/resources/users/', methods=['DELETE'])
 def delete_user():
     db_column = 'username'
     db_table = 'user'
@@ -141,7 +141,7 @@ def delete_user():
     return jsonify("Delete user is successful"), 201
 
 
-@app.route('/api/v1.0/resources/messages/delete', methods=['DELETE'])
+@app.route('/api/v1.0/resources/messages/', methods=['DELETE'])
 def delete_message():
     db_column = 'message_id'
     db_table = 'message'
