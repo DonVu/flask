@@ -1,9 +1,9 @@
 # This is the minitwit web api
 
 import click
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, _app_ctx_stack
 from sqlite3 import dbapi2 as sqlite3
-from minitwit import *
+#from minitwit import *
 from flask_basicauth import BasicAuth
 
 app = Flask(__name__)
@@ -12,6 +12,50 @@ app.config['BASIC_AUTH_USERNAME'] = 'admin'
 app.config['BASIC_AUTH_PASSWORD'] = 'password'
 
 basic_auth = BasicAuth(app)
+
+# database configuration
+DATABASE = '/tmp/minitwit.db'
+PER_PAGE = 30
+
+#databse functions from minitwit.py
+def make_dicts(cursor, row):
+    return dict((cursor.description[idx][0], value)
+                 for idx, value in enumerate(row))
+
+def get_db():
+    """Opens a new database connection if there is none yet for the
+    current application context.
+    """
+    top = _app_ctx_stack.top
+    if not hasattr(top, 'sqlite_db'):
+        top.sqlite_db = sqlite3.connect(DATABASE)
+        top.sqlite_db.row_factory = make_dicts
+    return top.sqlite_db
+
+
+@app.teardown_appcontext
+def close_database(exception):
+    """Closes the database again at the end of the request."""
+    top = _app_ctx_stack.top
+    if hasattr(top, 'sqlite_db'):
+        top.sqlite_db.close()
+
+
+def init_db():
+    """Initializes the database."""
+    db = get_db()
+    with app.open_resource('schema.sql', mode='r') as f:
+        db.cursor().executescript(f.read())
+    db.commit()
+
+
+@app.cli.command('initdb')
+def initdb_command():
+    """Creates the database tables."""
+    init_db()
+    print('Initialized the database.')
+
+# --------- end of minitwit.py DB functions-------
 
 def populate_db():
     # Populates the database
