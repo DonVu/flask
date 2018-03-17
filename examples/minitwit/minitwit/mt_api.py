@@ -11,7 +11,19 @@ app = Flask(__name__)
 app.config['BASIC_AUTH_USERNAME'] = 'admin'
 app.config['BASIC_AUTH_PASSWORD'] = 'password'
 
-basic_auth = BasicAuth(app)
+
+
+# Overriding BasicAuth
+
+class ApiAuth(BasicAuth):
+    def check_credentials(self, username, password):
+        if ("admin"  == username and 
+               "password" == password):
+            return True
+    
+        return False
+
+basic_auth = ApiAuth(app)
 
 # database configuration
 DATABASE = '/tmp/minitwit.db'
@@ -54,6 +66,13 @@ def initdb_command():
     """Creates the database tables."""
     init_db()
     print('Initialized the database.')
+
+def query_db(query, args= (), one=False):
+     """Queries the database and returns a list of dictionaries."""
+     cur = get_db().execute(query, args)
+     rv = cur.fetchall()
+     return (rv[0] if rv else None) if one else rv
+
 
 # --------- end of minitwit.py DB functions-------
 
