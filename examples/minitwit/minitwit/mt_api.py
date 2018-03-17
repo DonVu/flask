@@ -16,14 +16,19 @@ app.config['BASIC_AUTH_PASSWORD'] = 'password'
 # Overriding BasicAuth
 
 class ApiAuth(BasicAuth):
-    def check_credentials(self, username, password):
-        if ("admin"  == username and 
-               "password" == password):
-            return True
-    
-        return False
+    def check_credentials(self, username, password): 
+         username_exists = query_db("SELECT pw_hash FROM user WHERE username = ?", [username])       
 
-basic_auth = ApiAuth(app)
+         if (username_exists):
+             print "User found"
+             username_password =  username_exists[0]["pw_hash"]
+             return password == username_password
+    
+         print "User not found"
+         return False
+
+user_auth = ApiAuth(app)
+basic_auth = BasicAuth(app)
 
 # database configuration
 DATABASE = '/tmp/minitwit.db'
@@ -113,6 +118,7 @@ def public_timeline():
     return jsonify(timeline)
 
 @app.route('/api/v1.0/resources/users/<username>/following', methods=['GET'])
+@user_auth.required
 def users_following(username):
     query = '''SELECT user_id FROM user WHERE username = "{}"'''.format(username)
     result = query_db(query)
@@ -135,6 +141,7 @@ def users_following(username):
     return jsonify(followers)
 
 @app.route('/api/v1.0/resources/users/<username>/timeline', methods=['GET'])
+@user_auth.required
 def user_timeline(username):
     query = '''SELECT user_id FROM user WHERE username = "{}"'''.format(username)
     result = query_db(query)
