@@ -16,6 +16,7 @@ from datetime import datetime
 from flask import Flask, request, session, url_for, redirect, \
      render_template, abort, g, flash, _app_ctx_stack
 from werkzeug import check_password_hash, generate_password_hash
+import requests
 
 
 # configuration
@@ -29,13 +30,11 @@ app = Flask('minitwit')
 app.config.from_object(__name__)
 app.config.from_envvar('MINITWIT_SETTINGS', silent=True)
 
-
 def get_user_id(username):
     """Convenience method to look up the id for a username."""
-    rv = query_db('select user_id from user where username = ?',
-                  [username], one=True)
+    response = requests.get("http://localhost:5000/api/v1.0/resource/\"{}\"".format(username))
+    rv = response.json()
     return rv[0] if rv else None
-
 
 def format_datetime(timestamp):
     """Format a timestamp for display."""
