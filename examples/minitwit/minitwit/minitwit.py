@@ -20,7 +20,7 @@ import requests
 
 
 # configuration
-DATABASE = '/tmp/minitwit.db'
+API_BASE_URL = "http://localhost:5001"
 PER_PAGE = 30
 DEBUG = True
 SECRET_KEY = b'_5#y2L"F4Q8z\n\xec]/'
@@ -34,7 +34,7 @@ def get_user_id(username):
     """Convenience method to look up the id for a username."""
     response = requests.get("http://localhost:5000/api/v1.0/resource/\"{}\"".format(username))
     rv = response.json()
-    return rv[0] if rv else None
+    return rv.text if rv else None
 
 def format_datetime(timestamp):
     """Format a timestamp for display."""
