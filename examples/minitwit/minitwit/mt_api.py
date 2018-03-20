@@ -133,7 +133,7 @@ def users_following(username):
     userID_dict = result[0]
     uID = userID_dict['user_id']
 
-    query2 = '''SELECT whom_id FROM follower WHERE who_id = {}'''.format(uID)
+    query2 = '''SELECT whom_id FROM follower WHERE who_id = "{}"'''.format(uID)
     result2 = query_db(query2)
     
     print(result2)
@@ -141,7 +141,7 @@ def users_following(username):
     followers = []
     for following_dict in result2:
         whom_id = following_dict['whom_id']
-        query3 = '''SELECT username FROM user WHERE user_id = {}'''.format(whom_id)
+        query3 = '''SELECT username FROM user WHERE user_id = "{}"'''.format(whom_id)
         result3 = query_db(query3)
         followers.append(result3)
    
@@ -156,13 +156,13 @@ def user_timeline(username):
     userID_dict = result[0]
     uID = userID_dict['user_id']
 
-    query2 = '''SELECT whom_id FROM follower WHERE who_id = {}'''.format(uID)
+    query2 = '''SELECT whom_id FROM follower WHERE who_id = "{}"'''.format(uID)
     result2 = query_db(query2)
 
     messages = []
     for following_dict in result2:
         whom_id = following_dict['whom_id']
-        query3 = '''SELECT text FROM message WHERE author_id = {}'''.format(whom_id)
+        query3 = '''SELECT text FROM message WHERE author_id = "{}"'''.format(whom_id)
         result3 = query_db(query3)
         messages.append(result3)
 
