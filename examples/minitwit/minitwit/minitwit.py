@@ -31,7 +31,7 @@ app.config.from_envvar('MINITWIT_SETTINGS', silent=True)
 
 def get_user_id(username):
     """Convenience method to look up the id for a username."""
-    response = requests.get(API_BASE_URL +"/api/v1.0/resource/\"{}\"".format(username))
+    response = requests.get(API_BASE_URL +"/api/v1.0/resources/\"{}\"".format(username))
     rv = response.json()
     return rv.text if rv else None
 
