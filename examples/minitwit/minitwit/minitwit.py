@@ -18,7 +18,6 @@ from flask import Flask, request, session, url_for, redirect, \
 from werkzeug import check_password_hash, generate_password_hash
 import requests
 
-
 # configuration
 API_BASE_URL = "http://localhost:5001"
 PER_PAGE = 30
@@ -57,10 +56,10 @@ def before_request():
 
 @app.route('/')
 def timeline():
-    """Shows a users timeline or if no user is logged in it will
+    '''Shows a users timeline or if no user is logged in it will
     redirect to the public timeline.  This timeline shows the user's
     messages as well as all the messages of followed users.
-    """
+    '''
     if not g.user:
         return redirect(url_for('public_timeline'))
     return render_template('timeline.html', messages=query_db('''
@@ -75,7 +74,7 @@ def timeline():
 
 @app.route('/public')
 def public_timeline():
-    """Displays the latest messages of all users."""
+    '''Displays the latest messages of all users.'''
     return render_template('timeline.html', messages=query_db('''
         select message.*, user.* from message, user
         where message.author_id = user.user_id
@@ -84,7 +83,7 @@ def public_timeline():
 
 @app.route('/<username>')
 def user_timeline(username):
-    """Display's a users tweets."""
+    '''Display's a users tweets.'''
     profile_user = query_db('select * from user where username = ?',
                             [username], one=True)
     if profile_user is None:
@@ -105,7 +104,7 @@ def user_timeline(username):
 
 @app.route('/<username>/follow')
 def follow_user(username):
-    """Adds the current user as follower of the given user."""
+    '''Adds the current user as follower of the given user.'''
     if not g.user:
         abort(401)
     whom_id = get_user_id(username)
@@ -121,7 +120,7 @@ def follow_user(username):
 
 @app.route('/<username>/unfollow')
 def unfollow_user(username):
-    """Removes the current user as follower of the given user."""
+    '''Removes the current user as follower of the given user.'''
     if not g.user:
         abort(401)
     whom_id = get_user_id(username)
@@ -137,7 +136,7 @@ def unfollow_user(username):
 
 @app.route('/add_message', methods=['POST'])
 def add_message():
-    """Registers a new message for the user."""
+    '''Registers a new message for the user.'''
     if 'user_id' not in session:
         abort(401)
     if request.form['text']:
@@ -150,9 +149,10 @@ def add_message():
     return redirect(url_for('timeline'))
 
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """Logs the user in."""
+    '''Logs the user in.'''
     if g.user:
         return redirect(url_for('timeline'))
     error = None
@@ -173,7 +173,7 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """Registers the user."""
+    '''Registers the user.'''
     if g.user:
         return redirect(url_for('timeline'))
     error = None
@@ -199,7 +199,6 @@ def register():
             flash('You were successfully registered and can login now')
             return redirect(url_for('login'))
     return render_template('register.html', error=error)
-
 
 @app.route('/logout')
 def logout():
