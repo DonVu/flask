@@ -117,6 +117,7 @@ def public_timeline():
     timeline = query_db('''SELECT * FROM message''')
     return jsonify(timeline)
 
+# get user id by username
 @app.route('/api/v1.0/resources/users/<username>', methods=['GET'])
 def get_user_id(username):
     """Convenience method to look up the id for a username."""
@@ -124,6 +125,13 @@ def get_user_id(username):
                  [username], one=True)
 
     return jsonify(rv[0]) if rv else None
+
+# get user record by user id
+@app.route('/api/v1.0/resources/users/uid/<user_id>', methods=['GET'])
+def get_user_record(user_id):
+    result = query_db('select * from user where user_id = ?',
+                          user_id, one=True)
+    return jsonify(result)
 
 @app.route('/api/v1.0/resources/users/<username>/following', methods=['GET'])
 @user_auth.required

@@ -31,7 +31,7 @@ app.config.from_envvar('MINITWIT_SETTINGS', silent=True)
 
 def get_user_id(username):
     """Convenience method to look up the id for a username."""
-    response = requests.get(API_BASE_URL +"/api/v1.0/resources/\"{}\"".format(username))
+    response = requests.get(API_BASE_URL + "/api/v1.0/resources/\"{}\"".format(username))
     rv = response.json()
     return rv.text if rv else None
 
@@ -50,8 +50,8 @@ def gravatar_url(email, size=80):
 def before_request():
     g.user = None
     if 'user_id' in session:
-        g.user = query_db('select * from user where user_id = ?',
-                          [session['user_id']], one=True)
+        g.user = requests.get(API_BASE_URL + "/api/v1.0/resources/users/uid/{}"
+                               .format(session['user_id']))
 
 
 @app.route('/')
@@ -79,7 +79,7 @@ def public_timeline():
         select message.*, user.* from message, user
         where message.author_id = user.user_id
         order by message.pub_date desc limit ?''', [PER_PAGE]))
-
+"""
 
 @app.route('/<username>')
 def user_timeline(username):
@@ -199,7 +199,7 @@ def register():
             flash('You were successfully registered and can login now')
             return redirect(url_for('login'))
     return render_template('register.html', error=error)
-
+"""
 @app.route('/logout')
 def logout():
     """Logs the user out."""
