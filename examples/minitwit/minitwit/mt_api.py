@@ -114,7 +114,9 @@ def get_allusers():
 
 @app.route('/api/v1.0/resources/users/timeline', methods=['GET'])
 def public_timeline():
-    timeline = query_db('''SELECT * FROM message''')
+    timeline = query_db('''SELECT message.*, user.* FROM message, user
+                           WHERE message.author_id = user.user_id
+                           order by message.pub_date desc limit ?''', [PER_PAGE])
     return jsonify(timeline)
 
 # get user id by username
@@ -157,7 +159,6 @@ def users_following(username):
     return jsonify(followers)
 
 @app.route('/api/v1.0/resources/users/<username>/timeline', methods=['GET'])
-@user_auth.required
 def user_timeline(username):
     query = '''SELECT user_id FROM user WHERE username = "{}"'''.format(username)
     result = query_db(query)
@@ -174,8 +175,7 @@ def user_timeline(username):
         result3 = query_db(query3)
         messages.append(result3)
 
-    print (messages)
-    return jsonify("timeline action succeeded")
+    return jsonify(messages)
 
 
 # Create URLs

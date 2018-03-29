@@ -62,6 +62,8 @@ def timeline():
     '''
     if not g.user:
         return redirect(url_for('public_timeline'))
+
+    
     return render_template('timeline.html', messages=query_db('''
         select message.*, user.* from message, user
         where message.author_id = user.user_id and (
@@ -72,14 +74,20 @@ def timeline():
         [session['user_id'], session['user_id'], PER_PAGE]))
 
 
+
 @app.route('/public')
 def public_timeline():
     '''Displays the latest messages of all users.'''
+    response = requests.get(API_BASE_URL + '/api/v1.0/resources/users/timeline')
+
+    return render_template('timeline.html', messages=response.json())
+    """
     return render_template('timeline.html', messages=query_db('''
         select message.*, user.* from message, user
         where message.author_id = user.user_id
         order by message.pub_date desc limit ?''', [PER_PAGE]))
-"""
+    """
+
 
 @app.route('/<username>')
 def user_timeline(username):
@@ -199,7 +207,7 @@ def register():
             flash('You were successfully registered and can login now')
             return redirect(url_for('login'))
     return render_template('register.html', error=error)
-"""
+
 @app.route('/logout')
 def logout():
     """Logs the user out."""
