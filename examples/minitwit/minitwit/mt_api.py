@@ -105,6 +105,7 @@ def populatedb_command():
     print('Populated the database.')
 
 
+
 #  Read URLs
 @app.route('/api/v1.0/resources/users', methods=['GET'])
 @basic_auth.required
@@ -112,12 +113,16 @@ def get_allusers():
     users = query_db('''SELECT * FROM user''')
     return jsonify(users)
 
+
+
 @app.route('/api/v1.0/resources/users/timeline', methods=['GET'])
 def public_timeline():
     timeline = query_db('''SELECT message.*, user.* FROM message, user
                            WHERE message.author_id = user.user_id
                            order by message.pub_date desc limit ?''', [PER_PAGE])
     return jsonify(timeline)
+
+
 
 # get user id by username
 @app.route('/api/v1.0/resources/users/<username>', methods=['GET'])
@@ -128,12 +133,16 @@ def get_user_id(username):
 
     return jsonify(rv[0]) if rv else None
 
+
+
 # get user record by user id
 @app.route('/api/v1.0/resources/users/uid/<user_id>', methods=['GET'])
 def get_user_record(user_id):
     result = query_db('select * from user where user_id = ?',
                           user_id, one=True)
     return jsonify(result)
+
+
 
 @app.route('/api/v1.0/resources/users/<username>/following', methods=['GET'])
 @user_auth.required
@@ -158,6 +167,8 @@ def users_following(username):
     print(followers) 
     return jsonify(followers)
 
+
+
 @app.route('/api/v1.0/resources/users/<username>/timeline', methods=['GET'])
 def user_timeline(username):
     query = '''SELECT user_id FROM user WHERE username = "{}"'''.format(username)
@@ -176,6 +187,7 @@ def user_timeline(username):
         messages.append(result3)
 
     return jsonify(messages)
+
 
 
 # Create URLs
@@ -200,6 +212,8 @@ def register():
     return jsonify("its success"), 201
     #return jsonify({'mt':entry}), 201
 
+
+
 @app.route('/api/v1.0/resources/messages/', methods=['POST'])
 def add_message():
      """Registers a new message for the user."""
@@ -217,6 +231,7 @@ def add_message():
      return jsonify("message stored: sucessessful"), 201 
 
 
+
 # Delete URLs
 @app.route('/api/v1.0/resources/users/', methods=['DELETE'])
 def delete_user():
@@ -225,6 +240,7 @@ def delete_user():
     delete_from_db(db_column, db_table)
     
     return jsonify("Delete user is successful"), 201
+
 
 
 @app.route('/api/v1.0/resources/messages/', methods=['DELETE'])
@@ -236,8 +252,8 @@ def delete_message():
     return jsonify("Delete message is successful"), 201
 
 
- #  Errors
 
+ #  Errors
 @app.errorhandler(400)
 def bad_request(e):
     return jsonify("400 Bad Request"), 400
