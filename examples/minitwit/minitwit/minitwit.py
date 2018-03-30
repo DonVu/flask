@@ -63,7 +63,7 @@ def timeline():
     if not g.user:
         return redirect(url_for('public_timeline'))
 
-    response = requests.get(API_BASE_URL + '/api/v1.0/resources/users/uid/{0}' 
+    response = requests.get(API_BASE_URL + '/api/v1.0/resources/users/timeline/{0}' 
                              .format(session['user_id']))
 
     return render_template('timeline.html', messages=response.json())

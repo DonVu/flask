@@ -134,7 +134,7 @@ def get_user_id(username):
     return jsonify(rv[0]) if rv else None
 
 # the timeline is accessed by the front end passing in the user's id
-@app.route('/api/v1.0/resources/users/uid/<user_id>', methods=['GET'])
+@app.route('/api/v1.0/resources/users/timeline/<user_id>', methods=['GET'])
 def timeline(user_id):
     result = query_db('''
         select message.*, user.* from message, user
