@@ -189,15 +189,16 @@ def register():
             error = 'You have to enter a password'
         elif request.form['password'] != request.form['password2']:
             error = 'The two passwords do not match'
-        elif get_user_id(request.form['username']) is not None:
+        elif requests.get(API_BASE_URL + '/api/v1.0/resources/users/{}' \
+                          .format(request.form['username'])).json() \
+                         is not None:
             error = 'The username is already taken'
         else:
-            db = get_db()
-            db.execute('''insert into user (
-              username, email, pw_hash) values (?, ?, ?)''',
-              [request.form['username'], request.form['email'],
-               generate_password_hash(request.form['password'])])
-            db.commit()
+            requests.post(API_BASE_URL + 'api/v1.0/resources/users/', 
+                           data = {'username': request.form['username'],
+                                   'email'   : request.form['email'],
+                                   'password': generate_password_hash(
+                                               request.form['password'])})
             flash('You were successfully registered and can login now')
             return redirect(url_for('login'))
     return render_template('register.html', error=error)

@@ -230,24 +230,16 @@ def user_timeline(username):
 # Create URLs
 @app.route('/api/v1.0/resources/users/', methods=['POST'])
 def register():
-  
-    if not request.json or not 'username' in request.json or not 'email' in request.json or not 'pw_hash' in request.json:
-        abort(400)
+    username = request.args.get('username')
+    email    = request.args.get('email')
+    password = request.args.get('password')
 
     db = get_db()
-    entry = {
-
-       'username': request.json.get('username'),
-       'email': request.json.get('email'),
-       'pw_hash': request.json.get('pw_hash')
-    }
-
     db.execute('''insert into user (
-             username, email, pw_hash) values (?, ?, ?)''',(entry['username'], entry['email'],entry['pw_hash']))
+           username, email, pw_hash) values (?, ?, ?)''',
+           [username, email, password])
     db.commit()
-
-    return jsonify("its success"), 201
-    #return jsonify({'mt':entry}), 201
+    return jsonify("Register operation successful"), 201
 
 
 
