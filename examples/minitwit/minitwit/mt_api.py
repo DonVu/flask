@@ -146,11 +146,13 @@ def timeline(user_id):
     return jsonify(result)
 
 # get user record by user id
-@app.route('/api/v1.0/resources/users/uid/<user_id>', methods=['GET'])
+@app.route('/api/v1.0/resources/users/<user_id>', methods=['GET'])
 def get_user_record(user_id):
     result = query_db('select * from user where user_id = ?',
                           user_id, one=True)
     return jsonify(result)
+
+# user records may be accessed by username
 
 
 
