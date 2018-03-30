@@ -63,7 +63,12 @@ def timeline():
     if not g.user:
         return redirect(url_for('public_timeline'))
 
-    
+    response = requests.get(API_BASE_URL + '/api/v1.0/resources/users/uid/{0}' 
+                             .format(session['user_id']))
+
+    return render_template('timeline.html', messages=response.json())
+
+    """
     return render_template('timeline.html', messages=query_db('''
         select message.*, user.* from message, user
         where message.author_id = user.user_id and (
@@ -72,7 +77,7 @@ def timeline():
                                     where who_id = ?))
         order by message.pub_date desc limit ?''',
         [session['user_id'], session['user_id'], PER_PAGE]))
-
+    """
 
 
 @app.route('/public')
