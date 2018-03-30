@@ -50,7 +50,7 @@ def gravatar_url(email, size=80):
 def before_request():
     g.user = None
     if 'user_id' in session:
-        g.user = requests.get(API_BASE_URL + "/api/v1.0/resources/users/{}"
+        g.user = requests.get(API_BASE_URL + "/api/v1.0/resources/users/uid/{}"
                                .format(session['user_id']))
 
 
