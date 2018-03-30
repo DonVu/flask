@@ -68,16 +68,6 @@ def timeline():
 
     return render_template('timeline.html', messages=response.json())
 
-    """
-    return render_template('timeline.html', messages=query_db('''
-        select message.*, user.* from message, user
-        where message.author_id = user.user_id and (
-            user.user_id = ? or
-            user.user_id in (select whom_id from follower
-                                    where who_id = ?))
-        order by message.pub_date desc limit ?''',
-        [session['user_id'], session['user_id'], PER_PAGE]))
-    """
 
 
 @app.route('/public')
@@ -86,12 +76,7 @@ def public_timeline():
     response = requests.get(API_BASE_URL + '/api/v1.0/resources/users/timeline')
 
     return render_template('timeline.html', messages=response.json())
-    """
-    return render_template('timeline.html', messages=query_db('''
-        select message.*, user.* from message, user
-        where message.author_id = user.user_id
-        order by message.pub_date desc limit ?''', [PER_PAGE]))
-    """
+
 
 
 @app.route('/<username>')
