@@ -82,21 +82,24 @@ def public_timeline():
 @app.route('/<username>')
 def user_timeline(username):
     '''Display's a users tweets.'''
-    profile_user = query_db('select * from user where username = ?',
-                            [username], one=True)
+    profile_user  =  requests.get(API_BASE_URL + 
+                               '/api/v1.0/resources/users/usernames/{}'
+                                .format(username)).json()
+
     if profile_user is None:
         abort(404)
     followed = False
     if g.user:
-        followed = query_db('''select 1 from follower where
-            follower.who_id = ? and follower.whom_id = ?''',
-            [session['user_id'], profile_user['user_id']],
-            one=True) is not None
-    return render_template('timeline.html', messages=query_db('''
-            select message.*, user.* from message, user where
-            user.user_id = message.author_id and user.user_id = ?
-            order by message.pub_date desc limit ?''',
-            [profile_user['user_id'], PER_PAGE]), followed=followed,
+        payload = {'session': session['user_id'],
+                   'profile_user': profile_user['user_id']}
+        followed =  requests.get(API_BASE_URL +
+                                  '/api/v1.0/resources/users/followed',
+                                  params=payload).json() is not None
+
+    payload2 = {'profile_user': profile_user['user_id']}
+    messages = requests.get(API_BASE_URL + '/api/v1.0/resources/messages',
+                             params=payload2).json()
+    return render_template('timeline.html', messages=messages, followed=followed,
             profile_user=profile_user)
 
 

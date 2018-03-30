@@ -131,7 +131,10 @@ def get_user_id(username):
     rv = query_db('select user_id from user where username = ?',
                  [username], one=True)
 
-    return jsonify(rv[0]) if rv else None
+    return jsonify(rv) if rv else None
+
+
+
 
 # the timeline is accessed by the front end passing in the user's id
 @app.route('/api/v1.0/resources/users/timeline/<user_id>', methods=['GET'])
@@ -145,15 +148,24 @@ def timeline(user_id):
         order by message.pub_date desc limit ?''', [user_id, user_id, PER_PAGE])
     return jsonify(result)
 
+
+
+
 # get user record by user id
 @app.route('/api/v1.0/resources/users/uid/<user_id>', methods=['GET'])
-def get_user_record(user_id):
+def get_user_record_by_id(user_id):
     result = query_db('select * from user where user_id = ?',
                           user_id, one=True)
     return jsonify(result)
 
-# user records may be accessed by username
 
+
+# user records may be accessed by username
+@app.route('/api/v1.0/resources/users/usernames/<user_name>', methods=['GET'])
+def get_user_record_by_name(user_name):
+    result = query_db('select * from user where username = ?',
+                            [user_name], one=True)
+    return jsonify(result) 
 
 
 @app.route('/api/v1.0/resources/users/<username>/following', methods=['GET'])
@@ -178,6 +190,20 @@ def users_following(username):
    
     print(followers) 
     return jsonify(followers)
+
+
+
+# the followed result is a sub-component that is passed to the /<username> 
+# render_template
+@app.route('/api/v1.0/resources/users/followed', methods=['GET'])
+def get_followed(session_user_id, profile_user_id):
+    session_user_id = request.args.get('session')
+    profile_user_id = request.args.get('profile_user') 
+    result = query_db('''select 1 from follower where
+                       follower.who_id = ? and follower.whom_id = ?''',
+                       [session_user_id, profile_user_id],
+                        one=True)
+    return jsonify(result)
 
 
 
@@ -225,6 +251,18 @@ def register():
     #return jsonify({'mt':entry}), 201
 
 
+# messages resource may be accessed via get methods
+@app.route('/api/v1.0/resources/messages',
+            methods=['GET'])
+def get_user_messages():
+    profile_user_id = request.args.get('profile_user')
+    result = query_db('''
+            select message.*, user.* from message, user where
+            user.user_id = message.author_id and user.user_id = ?
+            order by message.pub_date desc limit ?''',
+            [profile_user_id,  PER_PAGE])
+    
+    return jsonify(result)
 
 @app.route('/api/v1.0/resources/messages/', methods=['POST'])
 def add_message():
