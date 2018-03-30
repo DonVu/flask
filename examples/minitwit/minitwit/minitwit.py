@@ -108,13 +108,13 @@ def follow_user(username):
     '''Adds the current user as follower of the given user.'''
     if not g.user:
         abort(401)
-    whom_id = get_user_id(username)
+    whom_id = requests.get(API_BASE_URL + '/api/v1.0/resources/users/{}'
+                            .format(username)).json()
     if whom_id is None:
         abort(404)
-    db = get_db()
-    db.execute('insert into follower (who_id, whom_id) values (?, ?)',
-              [session['user_id'], whom_id])
-    db.commit()
+    requests.post(API_BASE_URL + '/api/v1.0/resources/users/follow',
+                   data = {'whom_id': whom_id,
+                           'session': session['user_id']})
     flash('You are now following "%s"' % username)
     return redirect(url_for('user_timeline', username=username))
 
@@ -124,13 +124,15 @@ def unfollow_user(username):
     '''Removes the current user as follower of the given user.'''
     if not g.user:
         abort(401)
-    whom_id = get_user_id(username)
+    whom_id = requests.get(API_BASE_URL + '/api/v1.0/resources/users/{}'
+                            .format(username)).json()
+
     if whom_id is None:
         abort(404)
-    db = get_db()
-    db.execute('delete from follower where who_id=? and whom_id=?',
-              [session['user_id'], whom_id])
-    db.commit()
+    
+    requests.delete(API_BASE_URL + '/api/v1.0/resources/users/unfollow',
+                     data = {'whom_id' : whom_id,
+                             'session' : session['user_id']})
     flash('You are no longer following "%s"' % username)
     return redirect(url_for('user_timeline', username=username))
 
@@ -141,11 +143,9 @@ def add_message():
     if 'user_id' not in session:
         abort(401)
     if request.form['text']:
-        db = get_db()
-        db.execute('''insert into message (author_id, text, pub_date)
-          values (?, ?, ?)''', (session['user_id'], request.form['text'],
-                                int(time.time())))
-        db.commit()
+        requests.post(API_BASE_URL + '/api/v1.0/resources/messages/',
+                       data = {'session': session['user_id'],
+                               'text'   : request.form['text']})
         flash('Your message was recorded')
     return redirect(url_for('timeline'))
 
@@ -158,8 +158,9 @@ def login():
         return redirect(url_for('timeline'))
     error = None
     if request.method == 'POST':
-        user = query_db('''select * from user where
-            username = ?''', [request.form['username']], one=True)
+        user = requests.get(API_BASE_URL + 
+                '/api/v1.0/resources/users/usernames/{}' \
+                  .format(request.form['username'])).json()
         if user is None:
             error = 'Invalid username'
         elif not check_password_hash(user['pw_hash'],

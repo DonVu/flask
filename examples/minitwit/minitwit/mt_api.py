@@ -131,8 +131,7 @@ def get_user_id(username):
     rv = query_db('select user_id from user where username = ?',
                  [username], one=True)
 
-    return jsonify(rv) if rv else None
-
+    return jsonify(rv[0]) if rv else None
 
 
 
@@ -251,9 +250,35 @@ def register():
     #return jsonify({'mt':entry}), 201
 
 
+
+# the user follows the person in <username>/follow
+@app.route('/api/v1.0/resources/users/follow', methods=['POST'])
+def follow_user():
+    whom_id = request.args.get('whom_id')
+    session_user_id = request.args.get('session')
+    db = get_db()
+    db.execute('insert into follower (who_id, whom_id) values (?, ?)',
+              [session_user_id, whom_id])
+    db.commit()
+    return jsonify('New follow added'), 201
+
+
+
+# the user unfollows the person in <username>/unfollow
+@app.route('/api/v1.0/resources/users/unfollow', methods=['DELETE'])
+def unfollow_user():
+    whom_id = request.args.get('whom_id')
+    session_user_id = request.args.get('session')
+    db = get_db()
+    db.execute('delete from follower where who_id=? and whom_id=?',
+              [session_user_id, whom_id])
+    db.commit()
+    return jsonify('Delete follower successful'), 200
+
+
+
 # messages resource may be accessed via get methods
-@app.route('/api/v1.0/resources/messages',
-            methods=['GET'])
+@app.route('/api/v1.0/resources/messages', methods=['GET'])
 def get_user_messages():
     profile_user_id = request.args.get('profile_user')
     result = query_db('''
@@ -267,16 +292,12 @@ def get_user_messages():
 @app.route('/api/v1.0/resources/messages/', methods=['POST'])
 def add_message():
      """Registers a new message for the user."""
-     if not request.json or not 'author_id' in request.json or not 'text' in request.json:
-         abort(401)
-
+     session_user_id = request.get.args('session')
+     text_message    = request.get.args('text')
+     
      db = get_db()
-
-     author_id = request.json.get('author_id')
-     text = request.json.get('text')
-     pub_date =int(time.time())
-     db.execute('''insert into message (author_id, text, pub_date) values (?, ?, ?)''',
-                (author_id, text, pub_date))
+     db.execute('''insert into message (author_id, text, pub_date)
+       values (?, ?, ?)''', (session_user_id, text_message,                                                         int(time.time())))
      db.commit()
      return jsonify("message stored: sucessessful"), 201 
 
