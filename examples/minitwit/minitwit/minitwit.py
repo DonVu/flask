@@ -144,8 +144,9 @@ def add_message():
         abort(401)
     if request.form['text']:
         requests.post(API_BASE_URL + '/api/v1.0/resources/messages/',
-                       data = {'session': session['user_id'],
-                               'text'   : request.form['text']})
+                       data = {'session'  : session['user_id'],
+                               'text'     : request.form['text'],
+                               'post_time': int(time.time())})
         flash('Your message was recorded')
     return redirect(url_for('timeline'))
 

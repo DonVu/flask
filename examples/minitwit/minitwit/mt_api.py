@@ -289,12 +289,13 @@ def get_user_messages():
 @app.route('/api/v1.0/resources/messages/', methods=['POST'])
 def add_message():
      """Registers a new message for the user."""
-     session_user_id = request.get.args('session')
-     text_message    = request.get.args('text')
-     
+     session_user_id = request.form['session']
+     text_message    = request.form['text']
+     post_time       = request.form['post_time']
+    
      db = get_db()
      db.execute('''insert into message (author_id, text, pub_date)
-       values (?, ?, ?)''', (session_user_id, text_message,                                                         int(time.time())))
+       values (?, ?, ?)''', [session_user_id, text_message,                                                         post_time])
      db.commit()
      return jsonify("message stored: sucessessful"), 201 
 
