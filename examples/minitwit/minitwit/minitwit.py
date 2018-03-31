@@ -108,8 +108,10 @@ def follow_user(username):
     '''Adds the current user as follower of the given user.'''
     if not g.user:
         abort(401)
-    whom_id = requests.get(API_BASE_URL + '/api/v1.0/resources/users/{}'
+    response = requests.get(API_BASE_URL + '/api/v1.0/resources/users/usernames/{}'
                             .format(username)).json()
+    whom_id = response['user_id']
+    
     if whom_id is None:
         abort(404)
     requests.post(API_BASE_URL + '/api/v1.0/resources/users/follow',

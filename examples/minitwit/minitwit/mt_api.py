@@ -195,9 +195,9 @@ def users_following(username):
 # the followed result is a sub-component that is passed to the /<username> 
 # render_template
 @app.route('/api/v1.0/resources/users/followed', methods=['GET'])
-def get_followed(session_user_id, profile_user_id):
+def get_followed():
     session_user_id = request.args.get('session')
-    profile_user_id = request.args.get('profile_user') 
+    profile_user_id = request.args.get('profile_user')
     result = query_db('''select 1 from follower where
                        follower.who_id = ? and follower.whom_id = ?''',
                        [session_user_id, profile_user_id],
@@ -248,8 +248,8 @@ def register():
 # the user follows the person in <username>/follow
 @app.route('/api/v1.0/resources/users/follow', methods=['POST'])
 def follow_user():
-    whom_id = request.args.get('whom_id')
-    session_user_id = request.args.get('session')
+    whom_id         = request.form['whom_id']
+    session_user_id = request.form['session']
     db = get_db()
     db.execute('insert into follower (who_id, whom_id) values (?, ?)',
               [session_user_id, whom_id])
@@ -261,8 +261,8 @@ def follow_user():
 # the user unfollows the person in <username>/unfollow
 @app.route('/api/v1.0/resources/users/unfollow', methods=['DELETE'])
 def unfollow_user():
-    whom_id = request.args.get('whom_id')
-    session_user_id = request.args.get('session')
+    whom_id         = request.form['whom_id']
+    session_user_id = request.form['session']
     db = get_db()
     db.execute('delete from follower where who_id=? and whom_id=?',
               [session_user_id, whom_id])
