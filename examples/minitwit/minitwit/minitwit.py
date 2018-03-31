@@ -194,7 +194,7 @@ def register():
                          is not None:
             error = 'The username is already taken'
         else:
-            requests.post(API_BASE_URL + 'api/v1.0/resources/users/', 
+            requests.post(API_BASE_URL + '/api/v1.0/resources/users/', 
                            data = {'username': request.form['username'],
                                    'email'   : request.form['email'],
                                    'password': generate_password_hash(

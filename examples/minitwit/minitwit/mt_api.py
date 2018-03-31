@@ -131,7 +131,7 @@ def get_user_id(username):
     rv = query_db('select user_id from user where username = ?',
                  [username], one=True)
 
-    return jsonify(rv[0]) if rv else None
+    return jsonify(rv[0] if rv else None) 
 
 
 
@@ -230,10 +230,12 @@ def user_timeline(username):
 # Create URLs
 @app.route('/api/v1.0/resources/users/', methods=['POST'])
 def register():
-    username = request.args.get('username')
-    email    = request.args.get('email')
-    password = request.args.get('password')
-
+    username = request.form['username']
+    email    = request.form['email']
+    password = request.form['password']
+    
+    print 'username = {0}, email = {1}, password = {2}'.format(
+            username, email, password)
     db = get_db()
     db.execute('''insert into user (
            username, email, pw_hash) values (?, ?, ?)''',
@@ -280,6 +282,9 @@ def get_user_messages():
             [profile_user_id,  PER_PAGE])
     
     return jsonify(result)
+
+
+
 
 @app.route('/api/v1.0/resources/messages/', methods=['POST'])
 def add_message():
