@@ -19,7 +19,7 @@ from werkzeug import check_password_hash, generate_password_hash
 import requests
 
 # configuration
-API_BASE_URL = "http://localhost:5001"
+API_BASE_URL = "http://localhost:8080"
 PER_PAGE = 30
 DEBUG = True
 SECRET_KEY = b'_5#y2L"F4Q8z\n\xec]/'
