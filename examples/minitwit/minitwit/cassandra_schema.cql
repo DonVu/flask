@@ -6,35 +6,23 @@ CREATE KEYSPACE minitwit
 
 USE minitwit;
 
-CREATE TABLE get_userid_by_username (
+CREATE TABLE authenticate_user (
     user_name text PRIMARY KEY,
-    userid uuid
+    pw_hash text
 );
 
-CREATE TABLE get_user_record (
-    user_id uuid PRIMARY KEY,
-    user_name text,
-    email text,
-);
-
-CREATE INDEX ON get_user_record (user_name);
-
-CREATE TABLE timeline (
-    user_id uuid PRIMARY KEY,
-    message_id uuid,
-    author_id uuid,
-    text text,
-    pub_date date,
-    who_id uuid,
-    whom_id uuid
-);
-
-CREATE TABLE messages (
+CREATE TABLE data (
     user_id uuid PRIMARY KEY,
     username text,
     email text,
     message_id uuid,
     author_id uuid,
     text text,
-    pub_date date
+    pub_date date,
+    who_id list<int>,
+    whom_id list<int>
 );
+
+CREATE INDEX ON data (user_name);
+CREATE INDEX ON data (who_id);
+CREATE INDEX ON data (whom_id);
