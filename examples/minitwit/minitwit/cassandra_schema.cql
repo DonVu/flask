@@ -15,14 +15,13 @@ CREATE TABLE data (
     user_id uuid PRIMARY KEY,
     username text,
     email text,
-    message_id uuid,
-    author_id uuid,
-    text text,
-    pub_date date,
-    who_id list<int>,
     whom_id list<int>
 );
 
 CREATE INDEX ON data (user_name);
-CREATE INDEX ON data (who_id);
-CREATE INDEX ON data (whom_id);
+
+CREATE TABLE messages (
+    author_id uuid PRIMARY KEY,
+    text text,
+    pub_date date,
+);
