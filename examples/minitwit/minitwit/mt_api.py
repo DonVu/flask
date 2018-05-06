@@ -31,7 +31,9 @@ user_auth = ApiAuth(app)
 basic_auth = BasicAuth(app)
 
 # database configuration
-DATABASE = '/tmp/minitwit.db'
+DATABASE_1 = '/tmp/minitwit1.db'
+DATABASE_2 = '/tmp/minitwit2.db'
+DATABASE_3 = '/tmp/minitwit3.db'
 PER_PAGE = 30
 
 #databse functions from minitwit.py
@@ -44,26 +46,41 @@ def get_db():
     current application context.
     """
     top = _app_ctx_stack.top
-    if not hasattr(top, 'sqlite_db'):
-        top.sqlite_db = sqlite3.connect(DATABASE)
-        top.sqlite_db.row_factory = make_dicts
-    return top.sqlite_db
+    if not hasattr(top, 'sqlite_db_1'):
+        # sharded database connection 1
+        top.sqlite_db_1 = sqlite3.connect(DATABASE_1)
+        top.sqlite_db_1.row_factory = make_dicts
+
+        # sharded database connection 2
+        top.sqlite_db_2 = sqlite3.connect(DATABASE_2)
+        top.sqlite_db_2.row_factory = make_dicts
+
+        # sharded database connection 3
+        top.sqlite_db_3 = sqlite3.connect(DATABASE_3)
+        top.sqlite_db_3.row_factory = make_dicts
+
+        db_connections = (top.sqlite_db_1, top.sqlite_db_2, top.sqlite_db_3)        
+
+    return db_connections
 
 
 @app.teardown_appcontext
 def close_database(exception):
     """Closes the database again at the end of the request."""
     top = _app_ctx_stack.top
-    if hasattr(top, 'sqlite_db'):
-        top.sqlite_db.close()
+    if hasattr(top, 'sqlite_db_1'):
+        top.sqlite_db_1.close()
+        top.sqlite_db_2.close()
+        top.sqlite_db_3.close()
 
 
 def init_db():
     """Initializes the database."""
-    db = get_db()
-    with app.open_resource('schema.sql', mode='r') as f:
-        db.cursor().executescript(f.read())
-    db.commit()
+    db_connections = get_db()
+    for db in db_connections:
+        with app.open_resource('schema.sql', mode='r') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
 
 
 @app.cli.command('initdb')

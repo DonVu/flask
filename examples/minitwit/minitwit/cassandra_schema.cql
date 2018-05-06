@@ -13,9 +13,9 @@ CREATE TABLE authenticate_user (
 
 CREATE TABLE data (
     user_id uuid PRIMARY KEY,
-    username text,
+    user_name text,
     email text,
-    whom_id list<int>
+    whom_id set<text>
 );
 
 CREATE INDEX ON data (user_name);
